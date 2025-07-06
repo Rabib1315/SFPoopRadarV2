@@ -48,4 +48,7 @@ if (app.get("env") === "development") {
   serveStatic(app);
 }
 
+// Use port 4000 for local development
+app.set('port', 4000);
+
 export default app;

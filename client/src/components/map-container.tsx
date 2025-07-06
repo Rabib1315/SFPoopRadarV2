@@ -68,6 +68,13 @@ export default function MapContainer({ onQuickReport }: MapContainerProps) {
       </div>
 
       <div className="h-60 relative bg-gray-100 overflow-hidden">
+        {/* Report Poop Button Overlay */}
+        <button
+          onClick={onQuickReport}
+          className="absolute top-3 right-3 z-40 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
+        >
+          <span className="text-lg mr-2">💩</span> Report Poop
+        </button>
         {/* Google Maps Embed */}
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3152.9554327614447!2d-122.41327368468218!3d37.78495647975565!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858086c13817d1%3A0x6bd5391e0e7d5e4f!2sTenderloin%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1675123456789!5m2!1sen!2sus"

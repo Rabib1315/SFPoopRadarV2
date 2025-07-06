@@ -94,17 +94,14 @@ export default function Report() {
   // Function to reverse geocode coordinates to street address
   const getAddressFromCoords = async (lat: number, lng: number): Promise<string> => {
     try {
-      // Using a mock address for now - in production you'd use Google Geocoding API
-      const streets = [
-        "Market St & 5th St",
-        "Geary St & Jones St", 
-        "Eddy St & Hyde St",
-        "Mission St & 16th St",
-        "Castro St & 18th St"
-      ];
-      return streets[Math.floor(Math.random() * streets.length)];
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+      );
+      const data = await response.json();
+      // Optionally, you can parse/shorten the address here
+      return data.display_name || "Unknown address";
     } catch (error) {
-      return "San Francisco, CA";
+      return "Unknown address";
     }
   };
 
@@ -136,13 +133,18 @@ export default function Report() {
         (error) => {
           setIsLocating(false);
           let errorMessage = "";
-          
+          // Clear location fields on error
+          form.setValue("latitude", "");
+          form.setValue("longitude", "");
+          form.setValue("location", "");
+          form.setValue("neighborhood", "");
+
           switch(error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage = "Location access denied. Please click the location icon in your browser's address bar and allow location access, then try again.";
+              errorMessage = "Location access denied. Please allow location access in your browser settings and try again.";
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage = "Location information is unavailable. Please check your GPS settings.";
+              errorMessage = "Location information is unavailable. Please check your device's location settings.";
               break;
             case error.TIMEOUT:
               errorMessage = "Location request timed out. Please try again.";
@@ -151,7 +153,7 @@ export default function Report() {
               errorMessage = "An unknown error occurred while getting your location.";
               break;
           }
-          
+
           toast({
             title: "Location sharing failed",
             description: errorMessage,
@@ -195,7 +197,7 @@ export default function Report() {
 
   const onSubmit = (data: ReportForm) => {
     // Ensure location data is present before submitting
-    if (!data.location || !data.neighborhood) {
+    if (!data.location || !data.neighborhood || !data.latitude || !data.longitude) {
       toast({
         title: "Location required",
         description: "Please share your location before submitting the report.",

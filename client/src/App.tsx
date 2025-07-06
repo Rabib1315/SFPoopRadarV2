@@ -9,6 +9,7 @@ import Report from "@/pages/report";
 import Alerts from "@/pages/alerts";
 import Settings from "@/pages/settings";
 import MobileAppContainer from "@/components/mobile-app-container";
+import BottomNavigation from "@/components/bottom-navigation";
 
 function Router() {
   return (
@@ -27,9 +28,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <MobileAppContainer>
-          <Router />
-        </MobileAppContainer>
+        <BottomNavigation />
+        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );
