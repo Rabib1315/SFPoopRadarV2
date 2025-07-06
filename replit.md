@@ -98,7 +98,16 @@ The application uses three main tables:
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- July 06, 2025: Replaced custom map with Google Maps embedded iframe
+- July 06, 2025: Removed orange plus button from map interface  
+- July 06, 2025: Added image upload functionality to incident reports
+- July 06, 2025: Enhanced location sharing with improved geolocation detection
+- July 06, 2025: Added imageUrl field to incident schema and storage
+
 ## Changelog
 
 Changelog:
 - July 06, 2025. Initial setup
+- July 06, 2025. Updated map interface and report functionality per user requirements

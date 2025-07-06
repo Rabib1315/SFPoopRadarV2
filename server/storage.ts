@@ -141,7 +141,7 @@ export class MemStorage implements IStorage {
 
     sampleIncidents.forEach(incident => {
       const id = this.currentIncidentId++;
-      this.incidents.set(id, { ...incident, id });
+      this.incidents.set(id, { ...incident, id, imageUrl: null });
     });
   }
 
@@ -173,8 +173,15 @@ export class MemStorage implements IStorage {
   async createIncident(insertIncident: InsertIncident): Promise<Incident> {
     const id = this.currentIncidentId++;
     const incident: Incident = {
-      ...insertIncident,
       id,
+      type: insertIncident.type,
+      latitude: insertIncident.latitude,
+      longitude: insertIncident.longitude,
+      location: insertIncident.location,
+      neighborhood: insertIncident.neighborhood,
+      reporter: insertIncident.reporter || "Anonymous",
+      status: insertIncident.status || "pending",
+      imageUrl: insertIncident.imageUrl || null,
       createdAt: new Date(),
       isRecent: true,
     };

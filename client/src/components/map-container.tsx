@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { type Incident } from "@shared/schema";
 import IncidentPopup from "./incident-popup";
-import { Plus } from "lucide-react";
 
 interface MapContainerProps {
   onQuickReport: () => void;
@@ -62,49 +61,44 @@ export default function MapContainer({ onQuickReport }: MapContainerProps) {
         <span className="text-xs text-gray-500">Updated 1 min ago</span>
       </div>
 
-      <div className="h-60 relative bg-gradient-to-br from-blue-50 to-blue-100 map-grid">
-        {/* SF Street Labels */}
-        <div className="absolute top-10 left-3 text-xs text-gray-600 font-semibold bg-white bg-opacity-90 px-2 py-1 rounded">
-          Geary St
-        </div>
-        <div className="absolute bottom-8 left-4 text-xs text-gray-600 font-semibold bg-white bg-opacity-90 px-2 py-1 rounded transform -rotate-12">
-          Market St
-        </div>
-        <div className="absolute top-5 left-1/3 text-xs text-gray-600 font-semibold bg-white bg-opacity-90 px-2 py-1 rounded transform rotate-90">
-          Van Ness
+      <div className="h-60 relative bg-gray-100 overflow-hidden">
+        {/* Google Maps Embed */}
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50590.32857729389!2d-122.46780341847656!3d37.75774166259!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80859a6d00690021%3A0x4a501367f076adff!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1609459200000!5m2!1sen!2sus"
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="absolute inset-0"
+        />
+
+        {/* Incident Markers Overlay */}
+        <div className="absolute inset-0 pointer-events-none">
+          {incidents.map((incident) => {
+            const position = getMarkerPosition(incident);
+            return (
+              <div
+                key={incident.id}
+                className={`poop-marker absolute w-6 h-6 ${getMarkerColor(
+                  incident.type
+                )} border-2 border-white rounded-full shadow-lg cursor-pointer z-30 flex items-center justify-center text-white text-xs font-bold ${
+                  incident.isRecent ? "recent-marker" : ""
+                } pointer-events-auto`}
+                style={position}
+                onClick={() => setSelectedIncident(incident)}
+              >
+                {getMarkerEmoji(incident.type)}
+              </div>
+            );
+          })}
         </div>
 
         {/* User Location */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-lg z-20">
           <div className="absolute inset-0 rounded-full border-2 border-blue-500 animate-ping"></div>
         </div>
-
-        {/* Incident Markers */}
-        {incidents.map((incident) => {
-          const position = getMarkerPosition(incident);
-          return (
-            <div
-              key={incident.id}
-              className={`poop-marker absolute w-6 h-6 ${getMarkerColor(
-                incident.type
-              )} border-2 border-white rounded-full shadow-lg cursor-pointer z-30 flex items-center justify-center text-white text-xs font-bold ${
-                incident.isRecent ? "recent-marker" : ""
-              }`}
-              style={position}
-              onClick={() => setSelectedIncident(incident)}
-            >
-              {getMarkerEmoji(incident.type)}
-            </div>
-          );
-        })}
-
-        {/* Quick Report Button */}
-        <button
-          onClick={onQuickReport}
-          className="absolute bottom-4 right-4 w-14 h-14 bg-orange-500 text-white rounded-full shadow-lg hover:scale-110 transition-transform duration-300 flex items-center justify-center text-xl z-40"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
       </div>
 
       {selectedIncident && (

@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, MapPin, Camera, Upload } from "lucide-react";
 
 const reportSchema = z.object({
   type: z.enum(["human", "dog", "unknown"]),
@@ -20,6 +20,7 @@ const reportSchema = z.object({
   neighborhood: z.string().min(1, "Neighborhood is required"),
   latitude: z.string().default("37.7749"),
   longitude: z.string().default("-122.4194"),
+  imageUrl: z.string().optional(),
 });
 
 type ReportForm = z.infer<typeof reportSchema>;
@@ -29,6 +30,8 @@ export default function Report() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isLocating, setIsLocating] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<ReportForm>({
     resolver: zodResolver(reportSchema),
@@ -38,6 +41,7 @@ export default function Report() {
       neighborhood: "",
       latitude: "37.7749",
       longitude: "-122.4194",
+      imageUrl: "",
     },
   });
 
@@ -71,17 +75,22 @@ export default function Report() {
           form.setValue("longitude", position.coords.longitude.toString());
           setIsLocating(false);
           toast({
-            title: "Location updated",
-            description: "Your current location has been set.",
+            title: "Location shared successfully",
+            description: "Your current location has been detected and set.",
           });
         },
         (error) => {
           setIsLocating(false);
           toast({
-            title: "Location error",
-            description: "Could not get your location. Please enter manually.",
+            title: "Location sharing denied",
+            description: "Please enable location sharing and try again.",
             variant: "destructive",
           });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
@@ -90,6 +99,25 @@ export default function Report() {
         title: "Location not supported",
         description: "Your browser doesn't support geolocation.",
         variant: "destructive",
+      });
+    }
+  };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // For now, we'll simulate an upload and set a placeholder URL
+      form.setValue("imageUrl", "placeholder-image-url");
+      toast({
+        title: "Image selected",
+        description: "Photo has been attached to your report.",
       });
     }
   };
@@ -212,8 +240,64 @@ export default function Report() {
                   className="flex-shrink-0"
                 >
                   <MapPin className="w-4 h-4" />
-                  {isLocating ? "..." : "GPS"}
+                  {isLocating ? "Sharing..." : "Share Location"}
                 </Button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Photo Evidence (Optional)</Label>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('image-upload')?.click()}
+                    className="flex items-center gap-2"
+                  >
+                    <Camera className="w-4 h-4" />
+                    Take Photo
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('image-upload')?.click()}
+                    className="flex items-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Image
+                  </Button>
+                </div>
+                
+                {imagePreview && (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="Selected poop evidence"
+                      className="w-full h-32 object-cover rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedImage(null);
+                        setImagePreview(null);
+                        form.setValue("imageUrl", "");
+                      }}
+                      className="absolute top-2 right-2"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -17,6 +17,7 @@ export const incidents = pgTable("incidents", {
   neighborhood: text("neighborhood").notNull(),
   reporter: text("reporter").default("Anonymous"),
   status: text("status").default("pending"), // 'pending', 'verified', 'cleaned'
+  imageUrl: text("image_url"), // URL to uploaded image
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isRecent: boolean("is_recent").default(true),
 });
