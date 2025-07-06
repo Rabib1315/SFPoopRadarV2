@@ -135,9 +135,26 @@ export default function Report() {
         },
         (error) => {
           setIsLocating(false);
+          let errorMessage = "";
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = "Location access denied. Please click the location icon in your browser's address bar and allow location access, then try again.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "Location information is unavailable. Please check your GPS settings.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "Location request timed out. Please try again.";
+              break;
+            default:
+              errorMessage = "An unknown error occurred while getting your location.";
+              break;
+          }
+          
           toast({
-            title: "Location sharing denied",
-            description: "Please enable location sharing and try again.",
+            title: "Location sharing failed",
+            description: errorMessage,
             variant: "destructive",
           });
         },
@@ -245,6 +262,13 @@ export default function Report() {
                 <MapPin className="w-5 h-5" />
                 {isLocating ? "Detecting Location..." : "Share Your Location"}
               </Button>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm font-medium text-blue-800">📍 Location Permission Required</p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Your browser will ask for location permission. Click "Allow" to automatically detect your neighborhood and street address.
+                </p>
+              </div>
               
               {form.watch("location") && form.watch("neighborhood") && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
