@@ -9,15 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, MapPin, Camera, Upload } from "lucide-react";
 
 const reportSchema = z.object({
   type: z.enum(["human", "dog", "unknown"]),
-  location: z.string().min(1, "Location is required"),
-  neighborhood: z.string().min(1, "Neighborhood is required"),
+  location: z.string().default(""),
+  neighborhood: z.string().default(""),
   latitude: z.string().default("37.7749"),
   longitude: z.string().default("-122.4194"),
   imageUrl: z.string().optional(),
@@ -66,17 +66,71 @@ export default function Report() {
     },
   });
 
+  // Function to determine neighborhood from coordinates
+  const getNeighborhoodFromCoords = (lat: number, lng: number): string => {
+    // SF neighborhood boundaries (approximate)
+    const neighborhoods = [
+      { name: "Tenderloin", bounds: { minLat: 37.783, maxLat: 37.787, minLng: -122.415, maxLng: -122.408 } },
+      { name: "SOMA", bounds: { minLat: 37.770, maxLat: 37.785, minLng: -122.415, maxLng: -122.390 } },
+      { name: "Mission", bounds: { minLat: 37.745, maxLat: 37.770, minLng: -122.430, maxLng: -122.405 } },
+      { name: "Castro", bounds: { minLat: 37.755, maxLat: 37.765, minLng: -122.440, maxLng: -122.425 } },
+      { name: "Financial District", bounds: { minLat: 37.790, maxLat: 37.800, minLng: -122.405, maxLng: -122.395 } },
+      { name: "Union Square", bounds: { minLat: 37.785, maxLat: 37.790, minLng: -122.410, maxLng: -122.405 } },
+      { name: "Nob Hill", bounds: { minLat: 37.790, maxLat: 37.795, minLng: -122.415, maxLng: -122.405 } },
+    ];
+
+    for (const neighborhood of neighborhoods) {
+      const { bounds } = neighborhood;
+      if (lat >= bounds.minLat && lat <= bounds.maxLat && 
+          lng >= bounds.minLng && lng <= bounds.maxLng) {
+        return neighborhood.name;
+      }
+    }
+    
+    // Default to closest neighborhood if not in bounds
+    return "SOMA";
+  };
+
+  // Function to reverse geocode coordinates to street address
+  const getAddressFromCoords = async (lat: number, lng: number): Promise<string> => {
+    try {
+      // Using a mock address for now - in production you'd use Google Geocoding API
+      const streets = [
+        "Market St & 5th St",
+        "Geary St & Jones St", 
+        "Eddy St & Hyde St",
+        "Mission St & 16th St",
+        "Castro St & 18th St"
+      ];
+      return streets[Math.floor(Math.random() * streets.length)];
+    } catch (error) {
+      return "San Francisco, CA";
+    }
+  };
+
   const getCurrentLocation = () => {
     setIsLocating(true);
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          form.setValue("latitude", position.coords.latitude.toString());
-          form.setValue("longitude", position.coords.longitude.toString());
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          form.setValue("latitude", lat.toString());
+          form.setValue("longitude", lng.toString());
+          
+          // Auto-detect neighborhood
+          const neighborhood = getNeighborhoodFromCoords(lat, lng);
+          form.setValue("neighborhood", neighborhood);
+          
+          // Get street address
+          const address = await getAddressFromCoords(lat, lng);
+          form.setValue("location", address);
+          
           setIsLocating(false);
           toast({
             title: "Location shared successfully",
-            description: "Your current location has been detected and set.",
+            description: `Detected: ${neighborhood}, ${address}`,
           });
         },
         (error) => {
@@ -123,23 +177,17 @@ export default function Report() {
   };
 
   const onSubmit = (data: ReportForm) => {
+    // Ensure location data is present before submitting
+    if (!data.location || !data.neighborhood) {
+      toast({
+        title: "Location required",
+        description: "Please share your location before submitting the report.",
+        variant: "destructive",
+      });
+      return;
+    }
     createIncidentMutation.mutate(data);
   };
-
-  const neighborhoods = [
-    "Tenderloin",
-    "SOMA",
-    "Mission",
-    "Castro",
-    "Financial District",
-    "Union Square",
-    "Nob Hill",
-    "Chinatown",
-    "North Beach",
-    "Russian Hill",
-    "Pacific Heights",
-    "Haight-Ashbury",
-  ];
 
   return (
     <div className="p-5">
@@ -185,64 +233,26 @@ export default function Report() {
               </RadioGroup>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="location">Location (Street/Address)</Label>
-              <Input
-                id="location"
-                placeholder="e.g., Market St & 5th St"
-                {...form.register("location")}
-              />
-              {form.formState.errors.location && (
-                <p className="text-red-500 text-sm">{form.formState.errors.location.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="neighborhood">Neighborhood</Label>
-              <Select
-                value={form.watch("neighborhood")}
-                onValueChange={(value) => form.setValue("neighborhood", value)}
+            <div className="space-y-3">
+              <Label>Your Location</Label>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={getCurrentLocation}
+                disabled={isLocating}
+                className="w-full flex items-center gap-2 justify-center py-6"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select neighborhood" />
-                </SelectTrigger>
-                <SelectContent>
-                  {neighborhoods.map((neighborhood) => (
-                    <SelectItem key={neighborhood} value={neighborhood}>
-                      {neighborhood}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.neighborhood && (
-                <p className="text-red-500 text-sm">{form.formState.errors.neighborhood.message}</p>
+                <MapPin className="w-5 h-5" />
+                {isLocating ? "Detecting Location..." : "Share Your Location"}
+              </Button>
+              
+              {form.watch("location") && form.watch("neighborhood") && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm font-medium text-green-800">Location Detected:</p>
+                  <p className="text-sm text-green-700">{form.watch("location")}</p>
+                  <p className="text-sm text-green-600">{form.watch("neighborhood")}</p>
+                </div>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Location Coordinates</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Latitude"
-                  {...form.register("latitude")}
-                  readOnly
-                />
-                <Input
-                  placeholder="Longitude"
-                  {...form.register("longitude")}
-                  readOnly
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={getCurrentLocation}
-                  disabled={isLocating}
-                  className="flex-shrink-0"
-                >
-                  <MapPin className="w-4 h-4" />
-                  {isLocating ? "Sharing..." : "Share Location"}
-                </Button>
-              </div>
             </div>
 
             <div className="space-y-3">

@@ -73,8 +73,8 @@ export class MemStorage implements IStorage {
     const sampleIncidents = [
       {
         type: "human",
-        latitude: "37.7849",
-        longitude: "-122.4094",
+        latitude: "37.7850",
+        longitude: "-122.4120",
         location: "Geary St & Leavenworth St",
         neighborhood: "Tenderloin",
         reporter: "Anonymous",
@@ -84,8 +84,8 @@ export class MemStorage implements IStorage {
       },
       {
         type: "human",
-        latitude: "37.7849",
-        longitude: "-122.4094",
+        latitude: "37.7845",
+        longitude: "-122.4110",
         location: "Eddy St & Hyde St",
         neighborhood: "Tenderloin",
         reporter: "Anonymous",
@@ -95,10 +95,10 @@ export class MemStorage implements IStorage {
       },
       {
         type: "human",
-        latitude: "37.7749",
-        longitude: "-122.4194",
-        location: "Market St & 3rd St",
-        neighborhood: "SOMA",
+        latitude: "37.7840",
+        longitude: "-122.4105",
+        location: "Jones St & Turk St",
+        neighborhood: "Tenderloin",
         reporter: "Anonymous",
         status: "pending",
         createdAt: new Date(Date.now() - 600000), // 10 minutes ago
@@ -106,10 +106,10 @@ export class MemStorage implements IStorage {
       },
       {
         type: "dog",
-        latitude: "37.7879",
-        longitude: "-122.4075",
-        location: "Powell St & Post St",
-        neighborhood: "Union Square",
+        latitude: "37.7855",
+        longitude: "-122.4115",
+        location: "Taylor St & Golden Gate Ave",
+        neighborhood: "Tenderloin",
         reporter: "Anonymous",
         status: "pending",
         createdAt: new Date(Date.now() - 900000), // 15 minutes ago
@@ -117,10 +117,10 @@ export class MemStorage implements IStorage {
       },
       {
         type: "dog",
-        latitude: "37.7749",
-        longitude: "-122.4194",
-        location: "Market St & 8th St",
-        neighborhood: "SOMA",
+        latitude: "37.7835",
+        longitude: "-122.4125",
+        location: "Hyde St & McAllister St",
+        neighborhood: "Tenderloin",
         reporter: "Anonymous",
         status: "pending",
         createdAt: new Date(Date.now() - 1800000), // 30 minutes ago
@@ -128,10 +128,10 @@ export class MemStorage implements IStorage {
       },
       {
         type: "unknown",
-        latitude: "37.7929",
-        longitude: "-122.4057",
-        location: "California St & Mason St",
-        neighborhood: "Nob Hill",
+        latitude: "37.7860",
+        longitude: "-122.4100",
+        location: "Mason St & O'Farrell St",
+        neighborhood: "Tenderloin",
         reporter: "Anonymous",
         status: "pending",
         createdAt: new Date(Date.now() - 3600000), // 1 hour ago

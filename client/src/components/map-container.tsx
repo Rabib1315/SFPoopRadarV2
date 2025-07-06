@@ -37,17 +37,23 @@ export default function MapContainer({ onQuickReport }: MapContainerProps) {
   };
 
   const getMarkerPosition = (incident: Incident) => {
-    // Convert lat/lng to approximate position within the map container
+    // Convert lat/lng to approximate position within the Tenderloin area map container
     const lat = parseFloat(incident.latitude);
     const lng = parseFloat(incident.longitude);
     
-    // SF approximate bounds: 37.7-37.8 lat, -122.5 to -122.4 lng
-    const topPercent = ((37.8 - lat) / 0.1) * 100;
-    const leftPercent = ((lng + 122.5) / 0.1) * 100;
+    // Tenderloin area bounds: 37.783-37.787 lat, -122.415 to -122.408 lng
+    const minLat = 37.783;
+    const maxLat = 37.787;
+    const minLng = -122.415;
+    const maxLng = -122.408;
+    
+    // Convert to percentages within the visible map area
+    const topPercent = ((maxLat - lat) / (maxLat - minLat)) * 100;
+    const leftPercent = ((lng - minLng) / (maxLng - minLng)) * 100;
     
     return {
-      top: `${Math.max(10, Math.min(90, topPercent))}%`,
-      left: `${Math.max(10, Math.min(90, leftPercent))}%`,
+      top: `${Math.max(5, Math.min(95, topPercent))}%`,
+      left: `${Math.max(5, Math.min(95, leftPercent))}%`,
     };
   };
 
@@ -64,7 +70,7 @@ export default function MapContainer({ onQuickReport }: MapContainerProps) {
       <div className="h-60 relative bg-gray-100 overflow-hidden">
         {/* Google Maps Embed */}
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d50590.32857729389!2d-122.46780341847656!3d37.75774166259!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80859a6d00690021%3A0x4a501367f076adff!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1609459200000!5m2!1sen!2sus"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3152.9554327614447!2d-122.41327368468218!3d37.78495647975565!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858086c13817d1%3A0x6bd5391e0e7d5e4f!2sTenderloin%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1675123456789!5m2!1sen!2sus"
           width="100%"
           height="100%"
           style={{ border: 0 }}

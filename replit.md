@@ -100,11 +100,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- July 06, 2025: Replaced custom map with Google Maps embedded iframe
+- July 06, 2025: Replaced custom map with Google Maps embedded iframe focused on Tenderloin area
 - July 06, 2025: Removed orange plus button from map interface  
 - July 06, 2025: Added image upload functionality to incident reports
 - July 06, 2025: Enhanced location sharing with improved geolocation detection
 - July 06, 2025: Added imageUrl field to incident schema and storage
+- July 06, 2025: Implemented automatic neighborhood detection from GPS coordinates
+- July 06, 2025: Removed manual location and neighborhood input fields from report form
+- July 06, 2025: Updated sample incidents to show properly within Tenderloin area on map
+- July 06, 2025: Added location validation to ensure GPS sharing before report submission
 
 ## Changelog
 
