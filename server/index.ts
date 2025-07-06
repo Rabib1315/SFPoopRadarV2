@@ -24,19 +24,15 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
       }
-
       log(logLine);
     }
   });
-
   next();
 });
 
-// Register routes and error handling synchronously
 registerRoutes(app);
 
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -52,5 +48,4 @@ if (app.get("env") === "development") {
   serveStatic(app);
 }
 
-// Export the app for Vercel serverless
 export default app;
