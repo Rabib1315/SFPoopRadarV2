@@ -43,7 +43,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 if (app.get("env") === "development") {
-  setupVite(app);
+  setupVite(app, undefined);
 } else {
   serveStatic(app);
 }
