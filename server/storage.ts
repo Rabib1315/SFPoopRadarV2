@@ -1,4 +1,6 @@
 import { users, incidents, neighborhoods, type User, type InsertUser, type Incident, type InsertIncident, type Neighborhood, type InsertNeighborhood } from "@shared/schema";
+import neighborhoodsData from "../mock-data/neighborhoods.json" assert { type: "json" };
+import incidentsData from "../mock-data/incidents.json" assert { type: "json" };
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -49,17 +51,7 @@ export class MemStorage implements IStorage {
   }
 
   private initializeNeighborhoods() {
-    const sfNeighborhoods = [
-      { name: "Tenderloin", count: 12 },
-      { name: "SOMA", count: 9 },
-      { name: "Mission", count: 7 },
-      { name: "Castro", count: 5 },
-      { name: "Financial District", count: 3 },
-      { name: "Union Square", count: 4 },
-      { name: "Nob Hill", count: 2 },
-    ];
-
-    sfNeighborhoods.forEach(neighborhood => {
+    neighborhoodsData.forEach(neighborhood => {
       const id = this.currentNeighborhoodId++;
       this.neighborhoods.set(neighborhood.name, {
         id,
@@ -70,78 +62,14 @@ export class MemStorage implements IStorage {
   }
 
   private initializeIncidents() {
-    const sampleIncidents = [
-      {
-        type: "human",
-        latitude: "37.7850",
-        longitude: "-122.4120",
-        location: "Geary St & Leavenworth St",
-        neighborhood: "Tenderloin",
-        reporter: "Anonymous",
-        status: "pending",
-        createdAt: new Date(Date.now() - 120000), // 2 minutes ago
-        isRecent: true,
-      },
-      {
-        type: "human",
-        latitude: "37.7845",
-        longitude: "-122.4110",
-        location: "Eddy St & Hyde St",
-        neighborhood: "Tenderloin",
-        reporter: "Anonymous",
-        status: "pending",
-        createdAt: new Date(Date.now() - 300000), // 5 minutes ago
-        isRecent: true,
-      },
-      {
-        type: "human",
-        latitude: "37.7840",
-        longitude: "-122.4105",
-        location: "Jones St & Turk St",
-        neighborhood: "Tenderloin",
-        reporter: "Anonymous",
-        status: "pending",
-        createdAt: new Date(Date.now() - 600000), // 10 minutes ago
-        isRecent: false,
-      },
-      {
-        type: "dog",
-        latitude: "37.7855",
-        longitude: "-122.4115",
-        location: "Taylor St & Golden Gate Ave",
-        neighborhood: "Tenderloin",
-        reporter: "Anonymous",
-        status: "pending",
-        createdAt: new Date(Date.now() - 900000), // 15 minutes ago
-        isRecent: false,
-      },
-      {
-        type: "dog",
-        latitude: "37.7835",
-        longitude: "-122.4125",
-        location: "Hyde St & McAllister St",
-        neighborhood: "Tenderloin",
-        reporter: "Anonymous",
-        status: "pending",
-        createdAt: new Date(Date.now() - 1800000), // 30 minutes ago
-        isRecent: false,
-      },
-      {
-        type: "unknown",
-        latitude: "37.7860",
-        longitude: "-122.4100",
-        location: "Mason St & O'Farrell St",
-        neighborhood: "Tenderloin",
-        reporter: "Anonymous",
-        status: "pending",
-        createdAt: new Date(Date.now() - 3600000), // 1 hour ago
-        isRecent: false,
-      },
-    ];
-
-    sampleIncidents.forEach(incident => {
+    incidentsData.forEach(incident => {
       const id = this.currentIncidentId++;
-      this.incidents.set(id, { ...incident, id, imageUrl: null });
+      this.incidents.set(id, {
+        ...incident,
+        createdAt: new Date(Date.now() - (incident.minutesAgo ?? 0) * 60000),
+        id,
+        imageUrl: null,
+      });
     });
   }
 
