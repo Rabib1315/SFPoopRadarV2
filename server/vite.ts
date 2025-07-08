@@ -68,7 +68,11 @@ export async function setupVite(app: Express, server?: Server) {
 }
 
 export function serveStatic(app: Express) {
+<<<<<<< HEAD
   const distPath = path.resolve(import.meta.dirname, "public");
+=======
+  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+>>>>>>> d807cc6 (Initial commit)
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
